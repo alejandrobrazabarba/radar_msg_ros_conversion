@@ -46,6 +46,9 @@ find_package(Threads)
  add_message_files(
    FILES
    SehirusHeartbeat.msg
+   SehirusBasicTrackReport.msg
+   SehirusNormalTrackReport.msg
+   SehirusExtendedTrackReport.msg
  )
 
 ## Generate services in the 'srv' folder
