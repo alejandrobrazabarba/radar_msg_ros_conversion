@@ -56,8 +56,8 @@ float32 estLat
 # Estimated longitude (degrees)
 float32 estLon
 
-# Detection time
-time timeStamp
+# Detection time in ms
+uint64 timeStamp
 
 # Measured size in slant range
 float32 meaRangeSize

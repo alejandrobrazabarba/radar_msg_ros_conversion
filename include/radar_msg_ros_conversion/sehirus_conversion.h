@@ -38,12 +38,22 @@ private:
 									  std::size_t num_bytes);
 	void udp_handle_receive_trackreport(const boost::system::error_code& error,
 									  	std::size_t num_bytes);
+	void basicTrackReportMsgToROS();
+	void normalTrackReportMsgToROS();
+	void extendedTrackReportMsgToROS();
+
 
 	ros::NodeHandle _nodeHandle;
 	ros::Publisher	_heartBeatPublisher;
 	ros::Publisher  _basicTrackReportPublisher;
 	ros::Publisher  _normalTrackReportPublisher;
 	ros::Publisher  _extendedTrackReportPublisher;
+
+	radar_msg_ros_conversion::SehirusHeartbeat _heartbeatMsg;
+	radar_msg_ros_conversion::SehirusBasicTrackReport _basicTrackReportMsg;
+	radar_msg_ros_conversion::SehirusNormalTrackReport _normalTrackReportMsg;
+	radar_msg_ros_conversion::SehirusExtendedTrackReport _extendedTrackReportMsg;
+
 	//boost::array<uint8_t, 1> _sendBuf;
 	boost::array<uint8_t, 72> _heartbeatRecvBuf;
 	boost::array<uint8_t, 188> _trackReportRecvBuf;
