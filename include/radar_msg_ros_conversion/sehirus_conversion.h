@@ -20,9 +20,9 @@ typedef radar_msg_ros_conversion::SehirusBasicTrackReport BasicTrackReport;
 typedef radar_msg_ros_conversion::SehirusNormalTrackReport NormalTrackReport;
 typedef radar_msg_ros_conversion::SehirusExtendedTrackReport ExtendedTrackReport;
 
-
-#define HEARTBEATLISTENINGPORT 6500
-#define TRACKREPORTLISTENINGPORT 6501
+// Default listening ports
+#define HBLSTPORT 6500 // Heartbeat
+#define TRLSTPORT 6501 // Track Report
 //#define BASICTRACKREPORTSIZE 76 // bytes
 //#define NORMALTRACKREPORTSIZE 152 // bytes
 //#define EXTENDEDTRACKREPORTSIZE 188 // bytes
@@ -30,7 +30,7 @@ typedef radar_msg_ros_conversion::SehirusExtendedTrackReport ExtendedTrackReport
 
 class SehirusConversion {
 public:
-	SehirusConversion();
+	SehirusConversion(const uint16_t &heartbeatListeningPort, const uint16_t &trackReportListeningPort);
 	~SehirusConversion();
 	void main();
 private:

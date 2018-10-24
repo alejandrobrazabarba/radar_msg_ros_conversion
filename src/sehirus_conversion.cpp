@@ -3,10 +3,10 @@
 /**
 * SehirusConversion constructor
 */
-SehirusConversion::SehirusConversion():
+SehirusConversion::SehirusConversion(const uint16_t &heartbeatListeningPort, const uint16_t &trackReportListeningPort):
 _nodeHandle(),
-_heartbeatSocket(_io_service, boostUdp::endpoint(boostUdp::v4(), HEARTBEATLISTENINGPORT)),
-_trackReportSocket(_io_service, boostUdp::endpoint(boostUdp::v4(), TRACKREPORTLISTENINGPORT))
+_heartbeatSocket(_io_service, boostUdp::endpoint(boostUdp::v4(), heartbeatListeningPort)),
+_trackReportSocket(_io_service, boostUdp::endpoint(boostUdp::v4(), trackReportListeningPort))
 {
 }
 
@@ -19,17 +19,16 @@ SehirusConversion::~SehirusConversion()
 }
 
 void SehirusConversion::udp_handle_receive_heartbeat(const boost::system::error_code& error,
-										   std::size_t num_bytes)
+										   			 std::size_t num_bytes)
 {
 	if (!error)
 	{
-		// Heartbeat Message Size: 72 bytes
 		ROS_INFO("Heartbeat Message Received");
 
 		uint32_t msgIdentifier = (uint32_t)_heartbeatRecvBuf[3] << 24  |
-      				  				 (uint32_t)_heartbeatRecvBuf[2] << 16 |
-      				  				 (uint32_t)_heartbeatRecvBuf[1] << 8  |
-      				  				 (uint32_t)_heartbeatRecvBuf[0];
+      				  			 (uint32_t)_heartbeatRecvBuf[2] << 16 |
+      				  			 (uint32_t)_heartbeatRecvBuf[1] << 8  |
+      				  			 (uint32_t)_heartbeatRecvBuf[0];
 
       	float aux_float = 0;
       	// Heartbeat message
@@ -56,27 +55,27 @@ void SehirusConversion::udp_handle_receive_heartbeat(const boost::system::error_
       			serverName[i] = _heartbeatRecvBuf[Heartbeat::SERVERNAMEPOS+i]; 
     		}
 			_heartbeatMsg.serverName = std::string(serverName);
-			_heartbeatMsg.commandPort = (uint16_t) _heartbeatRecvBuf[Heartbeat::CMDPORTPOS+1] << 8 |
-								   		(uint16_t) _heartbeatRecvBuf[Heartbeat::CMDPORTPOS];
-			_heartbeatMsg.commandConnected = (uint8_t) _heartbeatRecvBuf[Heartbeat::CMDCONNECTEDPOS];
-			_heartbeatMsg.commandListen = (uint8_t) _heartbeatRecvBuf[Heartbeat::CMDLISTENPOS];
+			_heartbeatMsg.commandPort = (uint16_t)_heartbeatRecvBuf[Heartbeat::CMDPORTPOS+1] << 8 |
+								   		(uint16_t)_heartbeatRecvBuf[Heartbeat::CMDPORTPOS];
+			_heartbeatMsg.commandConnected = (uint8_t)_heartbeatRecvBuf[Heartbeat::CMDCONNECTEDPOS];
+			_heartbeatMsg.commandListen = (uint8_t)_heartbeatRecvBuf[Heartbeat::CMDLISTENPOS];
 			std::memcpy (&aux_float, _heartbeatRecvBuf.data() + Heartbeat::RAWDISTTPUTPOS, FLOATSIZE);
 			_heartbeatMsg.rawDistributionThroughput = aux_float;
 			std::memcpy (&aux_float, _heartbeatRecvBuf.data() + Heartbeat::PRODISTTPUTPOS, FLOATSIZE);
 			_heartbeatMsg.proDistributionThroughput = aux_float;
 			std::memcpy (&aux_float, _heartbeatRecvBuf.data() + Heartbeat::RAWRECTPUTPOS, FLOATSIZE);
 			_heartbeatMsg.rawRecordingThroughput = aux_float;
-			_heartbeatMsg.sourceStarted = (uint8_t) _heartbeatRecvBuf[Heartbeat::SRCSTARTEDPOS];
-			_heartbeatMsg.bufferFull = (uint8_t) _heartbeatRecvBuf[Heartbeat::BUFFERFULLPOS];
-			_heartbeatMsg.cpuLoad = (uint16_t) _heartbeatRecvBuf[Heartbeat::CPULOADPOS+1] << 8 |
-								   (uint16_t) _heartbeatRecvBuf[Heartbeat::CPULOADPOS];
-			_heartbeatMsg.currentSourcePeriod = (uint16_t) _heartbeatRecvBuf[Heartbeat::CURRENTSRCPERIODPOS+1] << 8 |
-								   			   (uint16_t) _heartbeatRecvBuf[Heartbeat::CURRENTSRCPERIODPOS];
+			_heartbeatMsg.sourceStarted = (uint8_t)_heartbeatRecvBuf[Heartbeat::SRCSTARTEDPOS];
+			_heartbeatMsg.bufferFull = (uint8_t)_heartbeatRecvBuf[Heartbeat::BUFFERFULLPOS];
+			_heartbeatMsg.cpuLoad = (uint16_t)_heartbeatRecvBuf[Heartbeat::CPULOADPOS+1] << 8 |
+								    (uint16_t)_heartbeatRecvBuf[Heartbeat::CPULOADPOS];
+			_heartbeatMsg.currentSourcePeriod = (uint16_t)_heartbeatRecvBuf[Heartbeat::CURRENTSRCPERIODPOS+1] << 8 |
+								   			    (uint16_t)_heartbeatRecvBuf[Heartbeat::CURRENTSRCPERIODPOS];
 			_heartbeatMsg.nScans = (uint32_t)_heartbeatRecvBuf[Heartbeat::NSCANSPOS+3] << 24  |
-      				  			  (uint32_t)_heartbeatRecvBuf[Heartbeat::NSCANSPOS+2] << 16 |
-      				  			  (uint32_t)_heartbeatRecvBuf[Heartbeat::NSCANSPOS+1] << 8  |
-      				  			  (uint32_t)_heartbeatRecvBuf[Heartbeat::NSCANSPOS];
-			_heartbeatMsg.navDataPresent = (uint8_t) _heartbeatRecvBuf[Heartbeat::NAVDATAPRESENTPOS];
+      				  			   (uint32_t)_heartbeatRecvBuf[Heartbeat::NSCANSPOS+2] << 16 |
+      				  			   (uint32_t)_heartbeatRecvBuf[Heartbeat::NSCANSPOS+1] << 8  |
+      				  			   (uint32_t)_heartbeatRecvBuf[Heartbeat::NSCANSPOS];
+			_heartbeatMsg.navDataPresent = (uint8_t)_heartbeatRecvBuf[Heartbeat::NAVDATAPRESENTPOS];
 			// std::memcpy ( destino, origen, tamaño)
       		std::memcpy (&aux_float, _heartbeatRecvBuf.data() + Heartbeat::LATITUDEPOS, FLOATSIZE);
       		_heartbeatMsg.latitude = aux_float;
@@ -98,16 +97,12 @@ void SehirusConversion::udp_handle_receive_heartbeat(const boost::system::error_
 void SehirusConversion::udp_handle_receive_trackreport(const boost::system::error_code& error,
 										   			   std::size_t num_bytes)
 {
-	// Basic Track Report size: 76 bytes
-	// Normal Track Report size: 152 bytes
-	// Extended Track Report size: 188 bytes
-
 	if (!error)
 	{
 		uint32_t msgIdentifier = (uint32_t)_trackReportRecvBuf[3] << 24  |
-      				  				 (uint32_t)_trackReportRecvBuf[2] << 16 |
-      				  				 (uint32_t)_trackReportRecvBuf[1] << 8  |
-      				  				 (uint32_t)_trackReportRecvBuf[0];
+      				  			 (uint32_t)_trackReportRecvBuf[2] << 16 |
+      				  			 (uint32_t)_trackReportRecvBuf[1] << 8  |
+      				  			 (uint32_t)_trackReportRecvBuf[0];
 
       	if ( (msgIdentifier == 0x01AD0101) && (num_bytes == BasicTrackReport::UDPMSGSIZE) )
       	{
@@ -299,7 +294,14 @@ void SehirusConversion::main()
 
 int main(int argc, char** argv) {
 	ros::init(argc, argv, "sehirus_ros_node");
-	SehirusConversion sehirusConversion;
+	ros::NodeHandle privateNodeHandle("~");
+	// Get parameters
+	int heartbeatListeningPort = HBLSTPORT;		
+	privateNodeHandle.getParam("heartbeat_listening_port", heartbeatListeningPort);
+	int trackReportListeningPort = TRLSTPORT;
+	privateNodeHandle.getParam("track_report_listening_port", trackReportListeningPort);
+	//***************
+	SehirusConversion sehirusConversion(heartbeatListeningPort, trackReportListeningPort);
 	sehirusConversion.main();
 	return 0;
 }

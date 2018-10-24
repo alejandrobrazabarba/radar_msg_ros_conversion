@@ -103,8 +103,8 @@ find_package(Threads)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES radar_msg_ros_conversion
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  CATKIN_DEPENDS roscpp
+  DEPENDS Boost
 )
 
 ###########
@@ -135,8 +135,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/radar_msg_ros_conversion_node.cpp)
 
-add_executable(simple_udp_receiver src/simple_udp_receiver.cpp)
 add_executable(sehirus_conversion src/sehirus_conversion.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -146,13 +146,13 @@ add_executable(sehirus_conversion src/sehirus_conversion.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(sehirus_conversion ${catkin_EXPORTED_TARGETS})
+add_dependencies(sehirus_conversion ${catkin_EXPORTED_TARGETS} ${radar_msg_ros_conversion_EXPORTED_TARGETS})
+
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
 
-target_link_libraries (simple_udp_receiver ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${Threads_LIBRARIES})
 target_link_libraries (sehirus_conversion ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${Threads_LIBRARIES})
 #############
 ## Install ##
